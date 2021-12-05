@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth, db } from "../firebase";
@@ -14,7 +14,9 @@ const SignIn = () => {
     error: null,
   });
 
-  const { name, email, password, error, loading } = data;
+  const { email, password, error, loading } = data;
+
+  const [alert, setAlert] = useState(true);
 
   const handleChange = (e) => {
     setData({ ...data, [e.target.name]: e.target.value });
@@ -41,17 +43,49 @@ const SignIn = () => {
       });
       navigate("/");
     } catch (error) {
-      setData({ ...data, error: error.message, loading: false });
+      if (email && password) {
+        switch (error.message) {
+          case "Firebase: Error (auth/user-not-found).":
+            setData({
+              ...data,
+              error:
+                "Lütfen e-postanızı ve parolanızı kontrol edip yeniden deneyin.",
+              loading: false,
+            });
+            break;
+          case "Firebase: Error (auth/wrong-password).":
+            setData({
+              ...data,
+              error: "Hatalı bir şifre girdiniz.",
+              loading: false,
+            });
+            break;
+          default:
+            setData({
+              ...data,
+              error: "Giriş başarısız.",
+              loading: false,
+            });
+            break;
+        }
+      }
     }
+    setAlert(true);
   };
-
+  useEffect(() => {
+    if (error) {
+      setTimeout(() => {
+        setAlert(false);
+      }, [3000]);
+    }
+  }, [error, handleSubmit]);
   return (
     <div className="page">
       <section className="section">
         <h3 className="title">Giriş Yap</h3>
         <form className="form" onSubmit={handleSubmit}>
           <div className="form-container">
-            <label htmlFor="email">Email</label>
+            <label htmlFor="email">Eposta</label>
             <input
               type="email"
               name="email"
@@ -68,7 +102,7 @@ const SignIn = () => {
               onChange={handleChange}
             />
           </div>
-          {error ? <p className="error">{error}</p> : null}
+          {error ? alert && <p className="error">{error}</p> : null}
           <div className="btn-container">
             <button type="submit" className="btn">
               {loading ? "Giriş Yapılıyor..." : "Giriş Yap"}

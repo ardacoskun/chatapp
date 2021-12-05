@@ -15,6 +15,7 @@ import { useNavigate } from "react-router";
 const Profile = () => {
   const [img, setImg] = useState("");
   const [user, setUser] = useState();
+  const [errorMsg, setErrorMsg] = useState("");
 
   const navigate = useNavigate();
 
@@ -44,7 +45,9 @@ const Profile = () => {
           });
           setImg("");
         } catch (error) {
-          console.log(error.message);
+          if (error) {
+            setErrorMsg("Yükleme Başarısız!");
+          }
         }
       };
       uploadImg();
@@ -60,8 +63,13 @@ const Profile = () => {
     navigate("/");
   };
   return user ? (
-    <section className="profile-page">
+    <>
       <ProfileNavbar />
+      {errorMsg ? (
+        <div className="error-div">
+          <p className="error-msg">{errorMsg}</p>
+        </div>
+      ) : null}
       <div className="profile-container">
         <div className="img-container">
           <img src={user.profilePic || Img} alt="profile-image" />
@@ -98,7 +106,7 @@ const Profile = () => {
           </h4>
         </div>
       </div>
-    </section>
+    </>
   ) : null;
 };
 

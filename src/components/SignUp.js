@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { auth, db } from "../firebase";
@@ -16,8 +16,13 @@ const SignUp = () => {
 
   const { name, email, password, error, loading } = data;
 
+  const [alert, setAlert] = useState(true);
+
   const handleChange = (e) => {
-    setData({ ...data, [e.target.name]: e.target.value });
+    setData({
+      ...data,
+      [e.target.name]: e.target.value,
+    });
   };
 
   const handleSubmit = async (e) => {
@@ -27,32 +32,75 @@ const SignUp = () => {
       setData({ ...data, error: "Gerekli alanları doldurunuz." });
     }
     try {
-      const result = await createUserWithEmailAndPassword(
-        auth,
-        email,
-        password
-      );
+      if (name !== "") {
+        const result = await createUserWithEmailAndPassword(
+          auth,
+          email,
+          password
+        );
 
-      await setDoc(doc(db, "users", result.user.uid), {
-        uid: result.user.uid,
-        name,
-        email,
-        createdAt: Timestamp.fromDate(new Date()),
-        isOnline: true,
-      });
-      setData({
-        name: "",
-        email: "",
-        password: "",
-        loading: false,
-        error: null,
-      });
-      navigate("/");
+        await setDoc(doc(db, "users", result.user.uid), {
+          uid: result.user.uid,
+          name,
+          email,
+          createdAt: Timestamp.fromDate(new Date()),
+          isOnline: true,
+        });
+
+        setData({
+          name: "",
+          email: "",
+          password: "",
+          loading: false,
+          error: null,
+        });
+
+        navigate("/");
+      }
     } catch (error) {
-      setData({ ...data, error: error.message, loading: false });
+      if (email && password) {
+        switch (error.message) {
+          case "Firebase: Error (auth/email-already-in-use).":
+            setData({
+              ...data,
+              error: "Bu e-postaya sahip bir kullanıcı zaten var.",
+              loading: false,
+            });
+            break;
+          case "Firebase: Error (auth/invalid-password).":
+            setData({
+              ...data,
+              error: "Geçersiz bir şifre girdiniz.",
+              loading: false,
+            });
+            break;
+          case "Firebase: Password should be at least 6 characters (auth/weak-password).":
+            setData({
+              ...data,
+              error: "Şifre en az 6 karakterden oluşmalı.",
+              loading: false,
+            });
+            break;
+          default:
+            setData({
+              ...data,
+              error: "Kayıt başarısız.",
+              loading: false,
+            });
+            break;
+        }
+      }
     }
-  };
 
+    setAlert(true);
+  };
+  useEffect(() => {
+    if (error) {
+      setTimeout(() => {
+        setAlert(false);
+      }, [3000]);
+    }
+  }, [error, handleSubmit]);
   return (
     <div className="page">
       <section className="section">
@@ -68,7 +116,7 @@ const SignUp = () => {
             />
           </div>
           <div className="form-container">
-            <label htmlFor="email">Email</label>
+            <label htmlFor="email">Eposta</label>
             <input
               type="email"
               name="email"
@@ -85,7 +133,8 @@ const SignUp = () => {
               onChange={handleChange}
             />
           </div>
-          {error ? <p className="error">{error}</p> : null}
+
+          {error ? alert && <p className="error">{error}</p> : null}
           <div className="btn-container">
             <button type="submit" className="btn">
               {loading ? "Hesap Oluşturuluyor..." : "Kayıt Ol"}

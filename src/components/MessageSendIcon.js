@@ -8,16 +8,18 @@ const MessageSendIcon = () => {
         width: "30px",
         height: "30px",
         cursor: "pointer",
-        color: "#78B7FF",
+        color: "white",
         borderRadius: "50%",
       }}
-      viewBox="0 0 20 20"
-      fill="currentColor"
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke="currentColor"
     >
       <path
-        fillRule="evenodd"
-        d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-        clipRule="evenodd"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={2}
+        d="M13 9l3 3m0 0l-3 3m3-3H8m13 0a9 9 0 11-18 0 9 9 0 0118 0z"
       />
     </svg>
   );

@@ -2,18 +2,32 @@ import React, { useState, useEffect } from "react";
 import Navbar from "./Navbar";
 import {
   collection,
+  getDocs,
   addDoc,
   query,
   where,
   onSnapshot,
   Timestamp,
   orderBy,
+  doc,
+  updateDoc,
 } from "firebase/firestore";
 import { auth, db, storage } from "../firebase";
 import { ref, getDownloadURL, uploadBytes } from "firebase/storage";
 import User from "./User";
 import MessageInput from "./MessageInput";
 import Message from "./Message";
+
+function useWindowResize() {
+  const [size, setSize] = useState([window.innerWidth]);
+  useEffect(() => {
+    const handleResize = () => {
+      setSize([window.innerWidth]);
+    };
+    window.addEventListener("resize", handleResize);
+  }, []);
+  return size;
+}
 
 const Home = () => {
   const [users, setUsers] = useState([]);
@@ -22,7 +36,23 @@ const Home = () => {
   const [img, setImg] = useState("");
   const [msg, setMsg] = useState([]);
 
+  const [screenWidth] = useWindowResize();
+
   const user1 = auth.currentUser.uid;
+
+  useEffect(() => {
+    for (let elements of document.getElementsByClassName("home-container")) {
+      if (screenWidth > 768) {
+        elements.style.gridTemplateColumns = "1fr 3fr";
+      } else {
+        if (chat !== "") {
+          elements.style.gridTemplateColumns = "0 3fr";
+        } else {
+          elements.style.gridTemplateColumns = "3fr 0";
+        }
+      }
+    }
+  }, [screenWidth]);
 
   useEffect(() => {
     const q = query(collection(db, "users"), where("uid", "not-in", [user1]));
@@ -36,7 +66,7 @@ const Home = () => {
     return () => unSubscribe();
   }, []);
 
-  const selectUser = (user) => {
+  const selectUser = async (user) => {
     setChat(user);
 
     const user2 = user.uid;
@@ -53,6 +83,15 @@ const Home = () => {
         messages.push(doc.data());
       });
       setMsg(messages);
+    });
+
+    const querySnapshot = await getDocs(collection(db, "messages", id, "chat"));
+    querySnapshot.forEach((document) => {
+      if (document.data().from !== user1) {
+        updateDoc(doc(db, "messages", id, "chat", document.id), {
+          unread: false,
+        });
+      }
     });
   };
 
@@ -78,7 +117,9 @@ const Home = () => {
         to: user2,
         createdAt: Timestamp.fromDate(new Date()),
         images: url || "",
+        unread: true,
       });
+
       setText("");
       setImg("");
     }
@@ -86,14 +127,21 @@ const Home = () => {
 
   return (
     <>
-      <Navbar></Navbar>
+      <Navbar screenWidth={screenWidth} chat={chat} setChat={setChat}></Navbar>
       <div className="home-container">
         <div className="users-container">
           {users.map((user) => (
-            <User key={user.uid} user={user} selectUser={selectUser} />
+            <User
+              key={user.uid}
+              user={user}
+              selectUser={selectUser}
+              user1={user1}
+              chat={chat}
+              screenWidth={screenWidth}
+            />
           ))}
         </div>
-        <div className="messages-container">
+        <div className={`messages-container`}>
           {chat ? (
             <>
               <div className="messages-chat">
@@ -109,7 +157,12 @@ const Home = () => {
               <div className="messages">
                 {msg.length
                   ? msg.map((message, index) => (
-                      <Message key={index} message={message} user1={user1} />
+                      <Message
+                        key={index}
+                        message={message}
+                        user1={user1}
+                        chat={chat}
+                      />
                     ))
                   : null}
               </div>
@@ -121,7 +174,7 @@ const Home = () => {
               ></MessageInput>
             </>
           ) : (
-            <h3 className="no-chat">Bir sohbet başlatın.</h3>
+            <h3 className="no-chat">Bir sohbet başlat</h3>
           )}
         </div>
       </div>

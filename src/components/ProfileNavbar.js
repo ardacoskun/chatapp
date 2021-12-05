@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 
 const ProfileNavbar = () => {
   return (
-    <nav className="navbar">
+    <nav className="profile-navbar">
       <Link to="/" className="logo">
         ChatRefill
       </Link>
