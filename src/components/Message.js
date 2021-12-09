@@ -1,8 +1,4 @@
 import React, { useRef, useEffect } from "react";
-import moment from "moment";
-import "moment/locale/tr";
-
-moment.locale("tr");
 
 const Message = ({ message, user1 }) => {
   const scrollRef = useRef();

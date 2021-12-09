@@ -8,9 +8,11 @@ import { useAuth } from "./contexts/AuthContext";
 import Loading from "./components/Loading";
 import Profile from "./components/Profile";
 import Error from "./components/Error";
+import ForgotPassword from "./components/ForgotPassword";
 
 function App() {
-  const { loading } = useAuth();
+  const { loading, user } = useAuth();
+
   return (
     <>
       {loading ? (
@@ -18,7 +20,8 @@ function App() {
       ) : (
         <Routes>
           <Route path="/kayit-ol" element={<SignUp />} />
-          <Route path="/giris-yap" element={<SignIn />} />
+          <Route path="/giris-yap" element={user ? <Home /> : <SignIn />} />
+          <Route path="/sifremi-unuttum" element={<ForgotPassword />} />
           <Route
             exact
             path="/profile"

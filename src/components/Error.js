@@ -10,7 +10,7 @@ const Error = () => {
         <p className="error-homepage">
           Buradan
           <Link to="/" className="span-error">
-            anasayfaya
+            <span> anasayfaya </span>
           </Link>
           dönebilirsiniz.
         </p>

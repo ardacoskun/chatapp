@@ -116,7 +116,7 @@ const SignUp = () => {
             />
           </div>
           <div className="form-container">
-            <label htmlFor="email">Eposta</label>
+            <label htmlFor="email">E-Posta</label>
             <input
               type="email"
               name="email"

@@ -72,6 +72,7 @@ const SignIn = () => {
     }
     setAlert(true);
   };
+
   useEffect(() => {
     if (error) {
       setTimeout(() => {
@@ -85,7 +86,7 @@ const SignIn = () => {
         <h3 className="title">Giriş Yap</h3>
         <form className="form" onSubmit={handleSubmit}>
           <div className="form-container">
-            <label htmlFor="email">Eposta</label>
+            <label htmlFor="email">E-Posta</label>
             <input
               type="email"
               name="email"
@@ -102,6 +103,9 @@ const SignIn = () => {
               onChange={handleChange}
             />
           </div>
+          <Link to="/sifremi-unuttum" className="forgot-password-link">
+            <p className="forgot-password">Şifremi unuttum.</p>
+          </Link>
           {error ? alert && <p className="error">{error}</p> : null}
           <div className="btn-container">
             <button type="submit" className="btn">

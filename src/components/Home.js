@@ -6,6 +6,7 @@ import {
   addDoc,
   query,
   where,
+  setDoc,
   onSnapshot,
   Timestamp,
   orderBy,
@@ -17,6 +18,7 @@ import { ref, getDownloadURL, uploadBytes } from "firebase/storage";
 import User from "./User";
 import MessageInput from "./MessageInput";
 import Message from "./Message";
+import { useNavigate } from "react-router-dom";
 
 function useWindowResize() {
   const [size, setSize] = useState([window.innerWidth]);
@@ -30,6 +32,8 @@ function useWindowResize() {
 }
 
 const Home = () => {
+  let navigate = useNavigate();
+
   const [users, setUsers] = useState([]);
   const [chat, setChat] = useState("");
   const [text, setText] = useState("");
@@ -39,6 +43,15 @@ const Home = () => {
   const [screenWidth] = useWindowResize();
 
   const user1 = auth.currentUser.uid;
+
+  useEffect(() => {
+    if (screenWidth <= 768) {
+      window.addEventListener("popstate", () => {
+        navigate(-1);
+        console.log("geri");
+      });
+    }
+  }, []);
 
   useEffect(() => {
     for (let elements of document.getElementsByClassName("home-container")) {
@@ -112,6 +125,15 @@ const Home = () => {
 
     if (img || text) {
       await addDoc(collection(db, "messages", id, "chat"), {
+        text,
+        from: user1,
+        to: user2,
+        createdAt: Timestamp.fromDate(new Date()),
+        images: url || "",
+        unread: true,
+      });
+
+      await setDoc(doc(db, "lastMessage", id), {
         text,
         from: user1,
         to: user2,
