@@ -265,7 +265,7 @@ section .title {
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: #f8d7da;
+  background-color: var(--error);
   width: 100%;
 }
 .error-msg {
