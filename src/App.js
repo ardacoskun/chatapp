@@ -19,7 +19,7 @@ function App() {
         <Loading />
       ) : (
         <Routes>
-          <Route path="/kayit-ol" element={<SignUp />} />
+          <Route path="/kayit-ol" element={user ? <Home /> : <SignUp />} />
           <Route path="/giris-yap" element={user ? <Home /> : <SignIn />} />
           <Route path="/sifremi-unuttum" element={<ForgotPassword />} />
           <Route
